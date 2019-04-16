@@ -294,7 +294,7 @@ module Chewy
         end.compact.reverse.join(' ')
       end
 
-      def reset_one(index, output, parallel: false, force_suffix:)
+      def reset_one(index, output, parallel: false, force_suffix: nil)
         output.puts "Resetting #{index}"
         suffix = force_suffix || (Time.now.to_f * 1000).round
         index.reset!(suffix, parallel: parallel)
