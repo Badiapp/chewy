@@ -59,7 +59,7 @@ module Chewy
       # @param parallel [true, Integer, Hash] any acceptable parallel options for import
       # @param output [IO] output io for logging
       # @return [Array<Chewy::Index>] indexes that were actually reset
-      def upgrade(only: nil, except: nil, parallel: nil, output: STDOUT)
+      def upgrade(only: nil, except: nil, parallel: nil, output: STDOUT, force_suffix: nil)
         subscribed_task_stats(output) do
           indexes = indexes_from(only: only, except: except)
 
@@ -70,7 +70,7 @@ module Chewy
           if changed_indexes.present?
             indexes.each do |index|
               if changed_indexes.include?(index)
-                reset_one(index, output, parallel: parallel)
+                reset_one(index, output, parallel: parallel, force_suffix: force_suffix)
               else
                 output.puts "Skipping #{index}, the specification didn't change"
               end
@@ -294,9 +294,10 @@ module Chewy
         end.compact.reverse.join(' ')
       end
 
-      def reset_one(index, output, parallel: false)
+      def reset_one(index, output, parallel: false, force_suffix: nil)
         output.puts "Resetting #{index}"
-        index.reset!((Time.now.to_f * 1000).round, parallel: parallel)
+        suffix = force_suffix || (Time.now.to_f * 1000).round
+        index.reset!(suffix, parallel: parallel)
       end
     end
   end
