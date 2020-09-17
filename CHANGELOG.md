@@ -1,5 +1,19 @@
 # master
 
+# Version 5.1.0
+
+## Breaking changes
+
+  * Add support for multiple indices in request (@pyromaniac, #657)
+
+  * Support `search_type`, `request_cache`, and `allow_partial_search_results` as query string parameters (@mattzollinhofer, #647)
+
+## Changes
+
+  * Speed up imports when `bulk_size` is specified (@yahooguntu, #606)
+
+  * Insert `RequestStrategy` middleware before `ActionDispatch::ShowExceptions` (@dck, #682)
+
 # Version 5.0.0
 
 ## Breaking changes
