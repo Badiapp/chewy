@@ -6,19 +6,19 @@ describe Chewy::Journal do
       context namespace.present? ? 'with namespace' : 'without namespace' do
         before do
           stub_model(:city) do
-            update_index "#{namespace}cities", :self
+            update_index "#{namespace}places#city", :self
           end
           stub_model(:country) do
-            update_index "#{namespace}countries", :self
+            update_index "#{namespace}places#country", :self
           end
 
-          stub_index("#{namespace}cities") do
-            index_scope City
-            default_import_options journal: true
-          end
-          stub_index("#{namespace}countries") do
-            index_scope Country
-            default_import_options journal: true
+          stub_index("#{namespace}places") do
+            define_type City do
+              default_import_options journal: true
+            end
+            define_type Country do
+              default_import_options journal: true
+            end
           end
 
           Chewy.massacre
@@ -41,8 +41,7 @@ describe Chewy::Journal do
         end
 
         specify do
-          cities_index = namespace.present? ? Namespace::CitiesIndex : CitiesIndex
-          countries_index = namespace.present? ? Namespace::CountriesIndex : CountriesIndex
+          places_index = namespace.present? ? Namespace::PlacesIndex : PlacesIndex
           Chewy.strategy(:urgent) do
             cities = Array.new(2) { |i| City.create!(id: i + 1) }
             countries = Array.new(2) { |i| Country.create!(id: i + 1) }
@@ -50,8 +49,7 @@ describe Chewy::Journal do
 
             Timecop.freeze(import_time)
 
-            cities_index.import
-            countries_index.import
+            places_index.import
 
             expect(Chewy::Stash::Journal.exists?).to eq true
 
@@ -64,55 +62,64 @@ describe Chewy::Journal do
             journal_entries = Chewy::Stash::Journal.order(:created_at).hits.map { |r| r['_source'] }
             expected_journal = [
               {
-                'index_name' => "#{namespace}cities",
+                'index_name' => "#{namespace}places",
+                'type_name' => 'city',
                 'action' => 'index',
                 'references' => ['1'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
-                'index_name' => "#{namespace}cities",
+                'index_name' => "#{namespace}places",
+                'type_name' => 'city',
                 'action' => 'index',
                 'references' => ['2'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
-                'index_name' => "#{namespace}countries",
+                'index_name' => "#{namespace}places",
+                'type_name' => 'country',
                 'action' => 'index',
                 'references' => ['1'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
-                'index_name' => "#{namespace}countries",
+                'index_name' => "#{namespace}places",
+                'type_name' => 'country',
                 'action' => 'index',
                 'references' => ['2'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
-                'index_name' => "#{namespace}countries",
+                'index_name' => "#{namespace}places",
+                'type_name' => 'country',
                 'action' => 'index',
                 'references' => ['3'].map(&Base64.method(:encode64)),
                 'created_at' => time.utc.as_json
               },
               {
-                'index_name' => "#{namespace}cities",
+                'index_name' => "#{namespace}places",
+                'type_name' => 'city',
                 'action' => 'index',
                 'references' => %w[1 2].map(&Base64.method(:encode64)),
                 'created_at' => import_time.utc.as_json
               },
               {
-                'index_name' => "#{namespace}countries",
+                'index_name' => "#{namespace}places",
+                'type_name' => 'country',
                 'action' => 'index',
                 'references' => %w[1 2 3].map(&Base64.method(:encode64)),
                 'created_at' => import_time.utc.as_json
               },
               {
-                'index_name' => "#{namespace}cities",
+                'index_name' => "#{namespace}places",
+                'type_name' => 'city',
                 'action' => 'index',
                 'references' => ['1'].map(&Base64.method(:encode64)),
                 'created_at' => update_time.utc.as_json
               },
               {
-                'index_name' => "#{namespace}countries",
+                'index_name' => "#{namespace}places",
+                'type_name' => 'country',
                 'action' => 'delete',
                 'references' => ['2'].map(&Base64.method(:encode64)),
                 'created_at' => destroy_time.utc.as_json
@@ -126,11 +133,11 @@ describe Chewy::Journal do
             expect(journal_entries.size).to eq 4
 
             # simulate lost data
-            Chewy.client.delete(index: "#{Chewy.settings[:prefix]}_cities", id: 1, refresh: true)
-            expect(cities_index.count).to eq 1
+            Chewy.client.delete(index: "#{Chewy.settings[:prefix]}_places", type: 'city', id: 1, refresh: true)
+            expect(places_index::City.count).to eq 1
 
             described_class.new.apply(time)
-            expect(cities_index.count).to eq 2
+            expect(places_index::City.count).to eq 2
 
             clean_response = described_class.new.clean(import_time)
             expect(clean_response['deleted'] || clean_response['_indices']['_all']['deleted']).to eq 7
@@ -155,12 +162,14 @@ describe Chewy::Journal do
       end
 
       stub_index(:cities) do
-        index_scope City
-        default_import_options journal: true
+        define_type City do
+          default_import_options journal: true
+        end
       end
       stub_index(:countries) do
-        index_scope Country
-        default_import_options journal: true
+        define_type Country do
+          default_import_options journal: true
+        end
       end
     end
 
@@ -179,8 +188,8 @@ describe Chewy::Journal do
             Array.new(2) { |i| Country.create!(id: i + 1) }
 
             # simulate lost data
-            Chewy.client.delete(index: 'cities', id: 1, refresh: true)
-            Chewy.client.delete(index: 'countries', id: 1, refresh: true)
+            Chewy.client.delete(index: 'cities', type: 'city', id: 1, refresh: true)
+            Chewy.client.delete(index: 'countries', type: 'country', id: 1, refresh: true)
             expect(CitiesIndex.all.to_a.length).to eq 1
             expect(CountriesIndex.all.to_a.length).to eq 1
 
@@ -190,7 +199,7 @@ describe Chewy::Journal do
             expect(CountriesIndex.all.to_a.length).to eq 1
 
             # Replay on both
-            Chewy.client.delete(index: 'cities', id: 1, refresh: true)
+            Chewy.client.delete(index: 'cities', type: 'city', id: 1, refresh: true)
             expect(CitiesIndex.all.to_a.length).to eq 1
             expect(described_class.new(CitiesIndex, CountriesIndex).apply(time)).to eq(4)
             expect(CitiesIndex.all.to_a.length).to eq 2
@@ -222,7 +231,7 @@ describe Chewy::Journal do
           let!(:journal_entries) do
             record = Chewy::Stash::Journal.entries(time).first
             Array.new(count_of_checks) do |i|
-              Chewy::Stash::Journal.new(
+              Chewy::Stash::Journal::Journal.new(
                 record.attributes.merge(
                   'created_at' => time.to_i + i,
                   'references' => [i.to_s]

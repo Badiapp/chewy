@@ -1,7 +1,10 @@
 module Chewy
   module Fields
     class Root < Chewy::Fields::Base
-      attr_reader :dynamic_templates, :id, :parent, :parent_id
+      attr_reader :dynamic_templates
+      attr_reader :id
+      attr_reader :parent
+      attr_reader :parent_id
 
       def initialize(name, **options)
         super(name, **options)
@@ -26,7 +29,8 @@ module Chewy
           mappings[name][:dynamic_templates].concat dynamic_templates
         end
 
-        mappings[name]
+        mappings[name][:_parent] = parent.is_a?(Hash) ? parent : {type: parent} if parent
+        mappings
       end
 
       def dynamic_template(*args)
@@ -52,13 +56,11 @@ module Chewy
 
       def compose_parent(object)
         return unless parent_id
-
         parent_id.arity.zero? ? object.instance_exec(&parent_id) : parent_id.call(object)
       end
 
       def compose_id(object)
         return unless id
-
         id.arity.zero? ? object.instance_exec(&id) : id.call(object)
       end
 

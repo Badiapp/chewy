@@ -102,7 +102,6 @@ module Chewy
       %i[must should must_not].each do |method|
         define_method method do |query_hash = nil, &block|
           raise ArgumentError, "Please provide a parameter or a block to `#{method}`" unless query_hash || block
-
           @request.send(:modify, @parameter_name) { send(method, block || query_hash) }
         end
       end
@@ -238,14 +237,8 @@ module Chewy
       #     @yield the block is processed by `elasticsearch-dsl` gem
       %i[and or not].each do |method|
         define_method method do |query_hash_or_scope = nil, &block|
-          unless query_hash_or_scope || block
-            raise ArgumentError,
-                  "Please provide a parameter or a block to `#{method}`"
-          end
-
-          if !block && query_hash_or_scope.is_a?(Chewy::Search::Request)
-            query_hash_or_scope = query_hash_or_scope.parameters[@parameter_name].value
-          end
+          raise ArgumentError, "Please provide a parameter or a block to `#{method}`" unless query_hash_or_scope || block
+          query_hash_or_scope = query_hash_or_scope.parameters[@parameter_name].value if !block && query_hash_or_scope.is_a?(Chewy::Search::Request)
           @request.send(:modify, @parameter_name) { send(method, block || query_hash_or_scope) }
         end
       end

@@ -5,23 +5,14 @@ module Chewy
 
       module ClassMethods
         def indexes
-          indexes = empty_if_not_found { client.indices.get(index: index_name).keys }
-          indexes += empty_if_not_found { client.indices.get_alias(name: index_name).keys }
-          indexes.compact.uniq
+          client.indices.get_alias(name: index_name).keys
+        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+          []
         end
 
         def aliases
-          empty_if_not_found do
-            client.indices.get_alias(index: index_name, name: '*').values.flat_map do |aliases|
-              aliases['aliases'].keys
-            end
-          end.compact.uniq
-        end
-
-      private
-
-        def empty_if_not_found
-          yield
+          name = index_name
+          client.indices.get_alias(index: name, name: '*')[name].try(:[], 'aliases').try(:keys) || []
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
           []
         end

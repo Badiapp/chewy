@@ -10,13 +10,13 @@ describe Chewy::Index::Aliases do
 
     context do
       before { DummiesIndex.create! }
-      specify { expect(DummiesIndex.indexes).to eq(['dummies']) }
+      specify { expect(DummiesIndex.indexes).to eq([]) }
     end
 
     context do
       before { DummiesIndex.create! }
       before { Chewy.client.indices.put_alias index: 'dummies', name: 'dummies_2013' }
-      specify { expect(DummiesIndex.indexes).to eq(['dummies']) }
+      specify { expect(DummiesIndex.indexes).to eq([]) }
     end
 
     context do
@@ -43,7 +43,7 @@ describe Chewy::Index::Aliases do
 
     context do
       before { DummiesIndex.create! '2013' }
-      specify { expect(DummiesIndex.aliases).to eq(['dummies']) }
+      specify { expect(DummiesIndex.aliases).to eq([]) }
     end
   end
 end

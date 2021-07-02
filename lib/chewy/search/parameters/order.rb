@@ -17,7 +17,7 @@ module Chewy
         # @param other_value [Object] any acceptable storage value
         # @return [Object] updated value
         def update!(other_value)
-          value.concat(normalize(other_value))
+          value.merge!(normalize(other_value))
         end
 
         # Size requires specialized rendering logic, it should return
@@ -28,7 +28,20 @@ module Chewy
         def render
           return if value.blank?
 
-          {sort: value}
+          sort = value.map do |(field, options)|
+            options ? {field => options} : field
+          end
+          {sort: sort}
+        end
+
+        # Comparison also reqires additional logic. Hashes are compared
+        # orderlessly, but for `sort` parameter oder is important, so we
+        # compare hash key collections additionally.
+        #
+        # @see Chewy::Search::Parameters::Storage#==
+        # @return [true, false]
+        def ==(other)
+          super && value.keys == other.value.keys
         end
 
       private
@@ -36,13 +49,13 @@ module Chewy
         def normalize(value)
           case value
           when Array
-            value.each_with_object([]) do |sv, res|
-              res.concat(normalize(sv))
+            value.each_with_object({}) do |sv, res|
+              res.merge!(normalize(sv))
             end
           when Hash
-            [value.stringify_keys]
+            value.stringify_keys
           else
-            value.present? ? [value.to_s] : []
+            value.present? ? {value.to_s => nil} : {}
           end
         end
       end

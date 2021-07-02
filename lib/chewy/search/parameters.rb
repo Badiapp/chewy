@@ -1,5 +1,5 @@
-Dir.glob(File.join(File.dirname(__FILE__), 'parameters', 'concerns', '*.rb')).sort.each { |f| require f }
-Dir.glob(File.join(File.dirname(__FILE__), 'parameters', '*.rb')).sort.each { |f| require f }
+Dir.glob(File.join(File.dirname(__FILE__), 'parameters', 'concerns', '*.rb')) { |f| require f }
+Dir.glob(File.join(File.dirname(__FILE__), 'parameters', '*.rb')) { |f| require f }
 
 module Chewy
   module Search
@@ -24,7 +24,6 @@ module Chewy
 
       # @return [{Symbol => Chewy::Search::Parameters::Storage}]
       attr_accessor :storages
-
       delegate :[], :[]=, to: :storages
 
       # Accepts an initial hash as basic values or parameter storages.
@@ -36,11 +35,10 @@ module Chewy
       #     limit: Chewy::Search::Parameters::Offset.new(10)
       #   )
       # @param initial [{Symbol => Object, Chewy::Search::Parameters::Storage}]
-      def initialize(initial = {}, **kinitial)
+      def initialize(initial = {})
         @storages = Hash.new do |hash, name|
           hash[name] = self.class.storages[name].new
         end
-        initial = initial.deep_dup.merge(kinitial)
         initial.each_with_object(@storages) do |(name, value), result|
           storage_class = self.class.storages[name]
           storage = value.is_a?(storage_class) ? value : storage_class.new(value)
@@ -121,7 +119,6 @@ module Chewy
 
       def assert_storages(names)
         raise ArgumentError, 'No storage names were specified' if names.empty?
-
         names = names.map(&:to_sym)
         self.class.storages.values_at(*names)
         names

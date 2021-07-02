@@ -1,31 +1,24 @@
 inherit_from: .rubocop_todo.yml
 
-AllCops:
-  NewCops: enable
-  TargetRubyVersion: 2.6
-
 Layout/AccessModifierIndentation:
   EnforcedStyle: outdent
 
-Layout/HashAlignment:
+Layout/AlignHash:
   EnforcedLastArgumentHashStyle: always_ignore
 
-Layout/ParameterAlignment:
+Layout/AlignParameters:
   EnforcedStyle: with_fixed_indentation
 
 Layout/CaseIndentation:
   EnforcedStyle: end
 
-Layout/EndAlignment:
-  EnforcedStyleAlignWith: variable
-
-Layout/FirstArrayElementIndentation:
+Layout/IndentArray:
   EnforcedStyle: consistent
 
-Layout/FirstHashElementIndentation:
+Layout/IndentHash:
   EnforcedStyle: consistent
 
-Layout/HeredocIndentation:
+Layout/IndentHeredoc:
   Enabled: false
 
 Layout/MultilineMethodCallIndentation:
@@ -39,6 +32,9 @@ Layout/SpaceInsideHashLiteralBraces:
 
 Lint/AmbiguousBlockAssociation:
   Enabled: false
+
+Lint/EndAlignment:
+  EnforcedStyleAlignWith: variable
 
 Style/Alias:
   EnforcedStyle: prefer_alias_method
@@ -57,5 +53,4 @@ Metrics/BlockLength:
 
 Metrics/ModuleLength:
   Exclude:
-    - 'lib/chewy/rake_helper.rb'
     - '**/*_spec.rb'

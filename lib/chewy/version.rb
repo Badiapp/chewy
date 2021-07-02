@@ -1,3 +1,3 @@
 module Chewy
-  VERSION = '7.2.2'.freeze
+  VERSION = '5.1.1'.freeze
 end

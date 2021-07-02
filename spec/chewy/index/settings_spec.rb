@@ -118,9 +118,7 @@ describe Chewy::Index::Settings do
       end
 
       context do
-        before do
-          allow(Chewy).to receive_messages(configuration: {index: {number_of_shards: 7, number_of_replicas: 2}})
-        end
+        before { allow(Chewy).to receive_messages(configuration: {index: {number_of_shards: 7, number_of_replicas: 2}}) }
 
         specify do
           expect(described_class.new.to_hash)
