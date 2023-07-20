@@ -59,7 +59,9 @@ module Chewy
 
           body = specification_hash
           body[:aliases] = {general_name => {}} if options[:alias] && suffixed_name != general_name
-          result = client.indices.create(index: suffixed_name, body: body)
+          args = {index: suffixed_name, body: body}
+          args[:include_type_name] = true if Runtime.version >= '6.7.0'
+          result = client.indices.create(**args)
 
           Chewy.wait_for_status if result
           result
@@ -142,6 +144,8 @@ module Chewy
         %i[import import!].each do |method|
           class_eval <<-METHOD, __FILE__, __LINE__ + 1
             def #{method}(*args)
+              return true if args.first.blank? && !args.first.nil?
+
               options = args.extract_options!
               if args.one? && type_names.one?
                 objects = {type_names.first.to_sym => args.first}
