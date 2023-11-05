@@ -95,13 +95,15 @@ Chewy is compatible with MRI 2.5-3.0¹.
 
 > ¹ Ruby 3 is only supported with Rails 6.1
 
-### Elasticsearch
+### Elasticsearch compatibility matrix
 
-Chewy 5 is compatible with Elasticsearch 5.
+| Chewy version | Elasticsearch version              |
+| ------------- | ---------------------------------- |
+| 7.0.0         | 6.8, 7.x                           |
+| 6.0.0         | 5.x, 6.x                           |
+| 5.x           | 5.x, limited support for 1.x & 2.x |
 
-Chewy 6 is compatible with Elasticsearch 6. See [Migration guide](migration_guide.md).
-
-Future versions of Chewy will support Elasticsearch 7.
+See [Migration guide](migration_guide.md).
 
 ## Usage
 
@@ -1028,7 +1030,7 @@ rake chewy:update[-users,places#city] # updates every index in the application e
 
 #### `chewy:sync`
 
-Provides a way to synchronize outdated indexes with the source quickly and without doing a full reset.
+Provides a way to synchronize outdated indexes with the source quickly and without doing a full reset. By default field `updated_at` is used to find outdated records, but this could be customized by `outdated_sync_field` as described at [Chewy::Type::Syncer](lib/chewy/type/syncer.rb).
 
 Arguments are similar to the ones taken by `chewy:update` task. It is possible to specify a particular type or a whole index.
 
