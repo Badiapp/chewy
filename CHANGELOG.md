@@ -8,6 +8,17 @@
 
 ### Bugs Fixed
 
+## 7.1.0 (2021-03-03)
+
+### Changes
+
+  * [#766](https://github.com/toptal/chewy/pull/766): **(Breaking)** Drop support for Elasticsearch 6.x ([@rabotyaga][])
+  * [#765](https://github.com/toptal/chewy/pull/765): Fix ruby 2.7 warnings in rake tasks ([@aglushkov][])
+
+### Bugs Fixed
+
+  * [#722](https://github.com/toptal/chewy/issues/722): Remove alias_method_chain, use Module#prepend instead ([@dalthon][])
+
 ## 7.0.1 (2021-05-03)
 
 ### Changes
