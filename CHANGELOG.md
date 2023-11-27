@@ -19,6 +19,13 @@
 
   * [#722](https://github.com/toptal/chewy/issues/722): Remove alias_method_chain, use Module#prepend instead ([@dalthon][])
 
+## 7.0.1 (2021-05-03)
+
+### Changes
+
+  * [#792](https://github.com/toptal/chewy/pull/792): Skip ES version memoization for search requests ([@rabotyaga][])
+    * See the Migration Guide for details
+
 ## 7.0.0 (2021-02-22)
 
 ### New Features
