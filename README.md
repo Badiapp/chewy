@@ -1,3 +1,5 @@
+# *DEPRECATED* - WE NOW USE [TOPTAL/CHEWY](https://github.com/toptal/chewy).
+
 [![Gem Version](https://badge.fury.io/rb/chewy.svg)](http://badge.fury.io/rb/chewy)
 [![Build Status](https://travis-ci.org/toptal/chewy.svg)](https://travis-ci.org/toptal/chewy)
 [![Code Climate](https://codeclimate.com/github/toptal/chewy.svg)](https://codeclimate.com/github/toptal/chewy)
